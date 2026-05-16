@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlRoot">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Driva Storage OS</title>
+  <meta name="theme-color" content="#f4eadb" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand-card">
+        <div class="brand-mark">D</div>
+        <div>
+          <p class="eyebrow">DRIVA COFFEE</p>
+          <h1>Storage OS</h1>
+        </div>
+      </div>
+
+      <nav class="nav-tabs" aria-label="Main navigation">
+        <button class="nav-btn active" data-view="dashboard">Dashboard</button>
+        <button class="nav-btn" data-view="storage">Storage Detail</button>
+        <button class="nav-btn" data-view="dispatch">Items Out</button>
+      </nav>
+
+      <div class="side-note">
+        <p>Clean stock. Sharp math.</p>
+        <span>Local-first inventory for green bean storage, dispatch logs, and live remaining stock.</span>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Inventory Control</p>
+          <h2 id="pageTitle">Dashboard</h2>
+        </div>
+        <div class="top-actions">
+          <label class="language-control">
+            <span id="languageLabel">Language</span>
+            <select id="languageSelect" aria-label="Language">
+              <option value="en">English</option>
+              <option value="id">Bahasa Indonesia</option>
+            </select>
+          </label>
+          <button class="ghost-btn" id="exportJsonBtn">Export JSON</button>
+          <button class="ghost-btn" id="exportCsvBtn">Export CSV</button>
+          <label class="ghost-btn import-label">
+            Import JSON
+            <input type="file" id="importJsonInput" accept="application/json" hidden />
+          </label>
+        </div>
+      </header>
+
+      <section id="dashboard" class="view active-view">
+        <div class="metric-grid">
+          <article class="metric-card highlight-card">
+            <span>Real-Time Stored</span>
+            <strong id="storedWeight">0 kg</strong>
+            <small>Incoming storage minus dispatched stock</small>
+          </article>
+          <article class="metric-card">
+            <span>Total Incoming</span>
+            <strong id="incomingWeight">0 kg</strong>
+            <small>All recorded green bean storage</small>
+          </article>
+          <article class="metric-card">
+            <span>Total Dispatched</span>
+            <strong id="dispatchedWeight">0 kg</strong>
+            <small>Items out to buyers</small>
+          </article>
+          <article class="metric-card">
+            <span>Active Lots</span>
+            <strong id="storageCount">0</strong>
+            <small>Storage records in the system</small>
+          </article>
+        </div>
+
+        <div class="panel-grid">
+          <section class="panel">
+            <div class="panel-header">
+              <h3>Recent Storage</h3>
+              <button class="mini-btn" data-jump="storage">Add Storage</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Origin</th><th>Lot</th><th>Process</th><th>Available</th></tr>
+                </thead>
+                <tbody id="recentStorageRows"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h3>Recent Dispatch</h3>
+              <button class="mini-btn" data-jump="dispatch">Add Dispatch</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Buyer</th><th>City</th><th>Lot</th><th>Weight</th></tr>
+                </thead>
+                <tbody id="recentDispatchRows"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="storage" class="view">
+        <section class="form-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Incoming / Available Stock</p>
+              <h3>Storage Detail</h3>
+            </div>
+            <button class="danger-btn hidden" id="cancelStorageEdit" type="button">Cancel Edit</button>
+          </div>
+
+          <form id="storageForm" class="data-form">
+            <input type="hidden" id="storageId" />
+            <label>Origin Name
+              <select required id="storageOrigin">
+                <option value="">Select origin</option>
+                <option>Indragiri</option>
+                <option>Citamiang</option>
+                <option value="Custom">Custom..</option>
+              </select>
+            </label>
+            <label class="custom-origin-field hidden" id="storageCustomOriginWrap">Custom Origin Name
+              <input id="storageCustomOrigin" placeholder="Type origin name" />
+            </label>
+            <label>Lot Name
+              <select required id="storageLot">
+                <option value="">Select lot</option>
+                <option>Mix</option>
+                <option>Palawija</option>
+                <option>Buninagara</option>
+                <option value="Custom">Custom..</option>
+              </select>
+            </label>
+            <label class="custom-lot-field hidden" id="storageCustomLotWrap">Custom Lot Name
+              <input id="storageCustomLot" placeholder="Type lot name" />
+            </label>
+            <label>Process Name
+              <select required id="storageProcess">
+                <option value="">Select process</option>
+                <option>Classic Washed</option>
+                <option>Slow Dried Natural</option>
+                <option>Dual Phase Natural</option>
+                <option>Dark Room Fermentation</option>
+                <option>Thermal Shock Natural</option>
+                <option>Lalvin Yeast Natural</option>
+                <option>Lalvin Yeast Washed</option>
+                <option>Semi Anaerobic Washed</option>
+              </select>
+            </label>
+            <label>Total Green Bean Weight (kg)<input required id="storageWeight" type="number" min="0" step="0.01" placeholder="50" /></label>
+            <label>End Sorted Date<input required id="storageSortedDate" type="date" /></label>
+            <button class="primary-btn" type="submit" id="storageSubmitBtn">Save Storage Record</button>
+          </form>
+        </section>
+
+        <section class="panel full-panel">
+          <div class="panel-header responsive-panel-header">
+            <div>
+              <h3>Storage Records</h3>
+              <p class="panel-caption">Available stock updates automatically after dispatch. No sleepy spreadsheet goblin.</p>
+            </div>
+            <input class="search-input" id="storageSearch" placeholder="Search origin, lot, process..." />
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Origin</th><th>Lot</th><th>Process</th><th>Incoming</th><th>Dispatched</th><th>Available</th><th>Sorted</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="storageRows"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section id="dispatch" class="view">
+        <section class="form-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Outbound Stock</p>
+              <h3>Items Out / Dispatched</h3>
+            </div>
+            <button class="danger-btn hidden" id="cancelDispatchEdit" type="button">Cancel Edit</button>
+          </div>
+
+          <form id="dispatchForm" class="data-form">
+            <input type="hidden" id="dispatchId" />
+            <label>Origin Name
+              <select required id="dispatchOrigin">
+                <option value="">Select origin</option>
+                <option>Indragiri</option>
+                <option>Citamiang</option>
+                <option value="Custom">Custom..</option>
+              </select>
+            </label>
+            <label class="custom-origin-field hidden" id="dispatchCustomOriginWrap">Custom Origin Name
+              <input id="dispatchCustomOrigin" placeholder="Type origin name" />
+            </label>
+            <label>Lot Name
+              <select required id="dispatchLot">
+                <option value="">Select lot</option>
+                <option>Mix</option>
+                <option>Palawija</option>
+                <option>Buninagara</option>
+                <option value="Custom">Custom..</option>
+              </select>
+            </label>
+            <label class="custom-lot-field hidden" id="dispatchCustomLotWrap">Custom Lot Name
+              <input id="dispatchCustomLot" placeholder="Type lot name" />
+            </label>
+            <label>Process Name
+              <select required id="dispatchProcess">
+                <option value="">Select process</option>
+                <option>Classic Washed</option>
+                <option>Slow Dried Natural</option>
+                <option>Dual Phase Natural</option>
+                <option>Dark Room Fermentation</option>
+                <option>Thermal Shock Natural</option>
+                <option>Lalvin Yeast Natural</option>
+                <option>Lalvin Yeast Washed</option>
+                <option>Semi Anaerobic Washed</option>
+              </select>
+            </label>
+            <label>Total Green Bean Weight (kg)<input required id="dispatchWeight" type="number" min="0" step="0.01" placeholder="10" /></label>
+            <label>Buyer Name<input required id="dispatchBuyer" placeholder="Buyer / roaster name" /></label>
+            <label>City Name<input required id="dispatchCity" placeholder="Bandung" /></label>
+            <button class="primary-btn" type="submit" id="dispatchSubmitBtn">Save Dispatch Record</button>
+          </form>
+        </section>
+
+        <section class="panel full-panel">
+          <div class="panel-header responsive-panel-header">
+            <div>
+              <h3>Dispatch Records</h3>
+              <p class="panel-caption">Each dispatch deducts from matching origin + lot + process.</p>
+            </div>
+            <input class="search-input" id="dispatchSearch" placeholder="Search buyer, city, origin, lot..." />
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Origin</th><th>Lot</th><th>Process</th><th>Weight</th><th>Buyer</th><th>City</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="dispatchRows"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
